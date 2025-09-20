@@ -6,7 +6,7 @@ plugins {
 
 group = "io.github.pavelshe11"
 version = "0.0.1-SNAPSHOT"
-description = "Messenger"
+description = "MessengerMicro"
 
 java {
     toolchain {

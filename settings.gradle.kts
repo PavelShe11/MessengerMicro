@@ -1,1 +1,1 @@
-rootProject.name = "Messenger"
+rootProject.name = "MessengerMicro"
