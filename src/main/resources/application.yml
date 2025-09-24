@@ -1,0 +1,92 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_DB_HOST}:${POSTGRES_DB_INTERNAL_PORT}/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:session-schema.sql
+
+  session:
+    store-type: jdbc
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+    defer-datasource-initialization: true
+
+  messages:
+    basename: messages
+    fallback-to-system-locale: true
+
+  web:
+    resources:
+      add-mappings: false
+
+  jackson:
+    mapper:
+      accept-case-insensitive-enums: true
+    serialization:
+      write-dates-as-timestamps: false
+
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - info
+          - debug
+          - env
+
+server:
+  port: ${MESSENGER_HTTP}
+
+grpc:
+  server:
+    port: 9093
+
+jwt:
+  access-token:
+    lifetime: ${ACCESS_TOKEN_LIFETIME}
+  refresh-token:
+    lifetime: ${REFRESH_TOKEN_LIFETIME}
+  secret: ${JWT_SECRET}
+
+code:
+  lifetime:
+    minutes: ${CODE_LIFETIME_MINUTES}
+
+CODE_PATTERN: ${ACTUAL_CODE_PATTERN}
+
+GRPC_CONFIG_JSON: ${ENV_GRPC_CONFIG_JSON}
+GRPC_SERVICE_ADDRESS: ${ENV_GRPC_SERVICE_ADDRESS}
+
+logging:
+  level:
+    org:
+      springframework:
+        security=DEBUG:
+        validation=DEBUG:
+
+springdoc:
+  swagger-ui:
+    path: /messenger/swagger-ui.html
+  api-docs:
+    path: /messenger/v3/api-docs
+
+SWAGGER_API_VERSION: ${ENV_SWAGGER_API_VERSION}
+SWAGGER_APP_DESCRIPTION: ${ENV_SWAGGER_APP_DESCRIPTION}
+SWAGGER_LICENSE: ${ENV_SWAGGER_LICENSE}
+SWAGGER_LICENSE_URL: ${ENV_SWAGGER_LICENSE_URL}
+SWAGGER_DEV_SERVER: ${ENV_SWAGGER_DEV_SERVER}
