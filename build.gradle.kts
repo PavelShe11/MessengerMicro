@@ -26,9 +26,9 @@ dependencies {
     // Для работы с сессиями бд
     implementation("org.springframework.session:spring-session-jdbc")
     // Для аутентификации и авторизации
-//    implementation ("org.springframework.boot:spring-boot-starter-security")
-//    implementation("io.jsonwebtoken:jjwt-api:0.11.5")
-//    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+    implementation ("org.springframework.boot:spring-boot-starter-security")
+    implementation("io.jsonwebtoken:jjwt-api:0.11.5")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     // Сваггер документация
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8")
 
