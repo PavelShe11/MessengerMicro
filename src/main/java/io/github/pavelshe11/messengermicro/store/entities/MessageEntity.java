@@ -34,7 +34,6 @@ public class MessageEntity {
 
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
-    @Builder.Default
     private MessageStatusType messageStatusType;
 
 }
