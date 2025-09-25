@@ -1,31 +1,21 @@
-package io.github.pavelshe11.messengermicro.store.entities;
+package io.github.pavelshe11.messengermicro.store.entities
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.*
+import java.util.*
 
-import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
-
-@Setter
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 @Entity
 @Table(name = "chats_in_folder")
-public class ChatsInFolderEntity {
+class ChatsInFolderEntity (
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(nullable = false, updatable = false)
-    private UUID id;
+     var id: UUID? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_id", referencedColumnName = "id", nullable = false)
-    private ChatRoomEntity chatRoom;
+     var chatRoom: ChatRoomEntity? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chats_folder_id", referencedColumnName = "id", nullable = false)
-    private ChatsFolderEntity chatsFolder;
-
-}
+     var chatsFolder: ChatsFolderEntity? = null
+)

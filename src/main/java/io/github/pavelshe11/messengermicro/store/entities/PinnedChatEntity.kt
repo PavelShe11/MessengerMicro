@@ -1,38 +1,29 @@
-package io.github.pavelshe11.messengermicro.store.entities;
+package io.github.pavelshe11.messengermicro.store.entities
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.*
+import java.time.Instant
+import java.util.*
 
-import java.time.Instant;
-import java.util.UUID;
-
-@Setter
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 @Entity
 @Table(name = "pinned_chat")
-public class PinnedChatEntity {
-
+data class PinnedChatEntity (
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(nullable = false, updatable = false)
-    private UUID id;
+     var id: UUID? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_id", referencedColumnName = "id", nullable = false)
-    private ChatRoomEntity chatRoom;
+     val chatRoom: ChatRoomEntity? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "participant_id", referencedColumnName = "id", nullable = false)
-    private ParticipantEntity participant;
+     val participant: ParticipantEntity? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chats_folder_id", referencedColumnName = "id", nullable = false)
-    private ChatsFolderEntity chatsFolder;
+     var chatsFolder: ChatsFolderEntity? = null,
 
-    @Builder.Default
     @Column(name = "added_at", nullable = false)
-    private Instant addedAt = Instant.now();
-}
+     var addedAt: Instant = Instant.now()
+)
