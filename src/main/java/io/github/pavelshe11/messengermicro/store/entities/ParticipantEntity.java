@@ -24,6 +24,7 @@ public class ParticipantEntity {
     @JoinColumn(name = "participant_type_id", referencedColumnName = "id", nullable = false)
     private ParticipantTypeEntity participantType;
 
+    @Column(name = "ref_id", nullable = false)
     private UUID refId;
 
     // For two-way communication with FK

@@ -36,4 +36,10 @@ public class MessageEntity {
     @Enumerated(EnumType.STRING)
     private MessageStatusType messageStatusType;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_message_id")
+    private MessageEntity parentMessage;
+
+    @OneToMany(mappedBy = "parentMessage", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MessageEntity> replies;
 }
