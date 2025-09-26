@@ -23,5 +23,5 @@ data class ParticipantTypeEntity (
 
     // For two-way communication with FK
     @OneToMany(mappedBy = "participantType", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    var participants: List<ParticipantEntity>
+    var participants: List<ParticipantEntity> = emptyList()
 )

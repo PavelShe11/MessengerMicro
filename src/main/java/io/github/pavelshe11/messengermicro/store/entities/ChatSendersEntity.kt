@@ -13,11 +13,11 @@ data class ChatSendersEntity (
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_id", referencedColumnName = "id", nullable = false)
-    var chatRoom: ChatRoomEntity,
+    val chatRoom: ChatRoomEntity,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "participant_id", referencedColumnName = "id", nullable = false)
-    var participant: ParticipantEntity,
+    val participant: ParticipantEntity,
 
     @Column(name = "created_at", nullable = false)
     val createdAt: Instant = Instant.now(),
@@ -27,5 +27,5 @@ data class ChatSendersEntity (
 
     // For two-way communication with FK
     @OneToMany(mappedBy = "chatSenders", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    var messages: List<MessageEntity>
+    var messages: List<MessageEntity> = emptyList()
 )

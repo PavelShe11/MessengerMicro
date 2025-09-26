@@ -27,8 +27,8 @@ class ChatsFolderEntity (
 
     // For two-way communication with FK
     @OneToMany(mappedBy = "chatsFolder", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-     var chatsInFolders: List<ChatsInFolderEntity>,
+     var chatsInFolders: List<ChatsInFolderEntity> = emptyList(),
 
     @OneToMany(mappedBy = "chatsFolder", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-     var pinnedChats: List<PinnedChatEntity>
+     var pinnedChats: List<PinnedChatEntity> = emptyList()
 )

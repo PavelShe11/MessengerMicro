@@ -32,5 +32,5 @@ data class MessageEntity (
      var parentMessage: MessageEntity,
 
     @OneToMany(mappedBy = "parentMessage", cascade = [CascadeType.ALL], orphanRemoval = true)
-     var replies: List<MessageEntity>
+     var replies: List<MessageEntity> = emptyList()
 )

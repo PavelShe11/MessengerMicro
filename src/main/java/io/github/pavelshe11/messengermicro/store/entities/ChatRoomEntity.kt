@@ -20,17 +20,17 @@ data class ChatRoomEntity (
 
     // For two-way communication with FK
     @OneToMany(mappedBy = "chatRoom", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-     var messages: List<MessageEntity>,
+     var messages: List<MessageEntity> = emptyList(),
 
     @OneToMany(mappedBy = "chatRoom", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-     var chatSenders: List<ChatSendersEntity>,
+     var chatSenders: List<ChatSendersEntity> = emptyList(),
 
     @OneToMany(mappedBy = "chatRoom", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-     var chatsInFolder: List<ChatsInFolderEntity>,
+     var chatsInFolder: List<ChatsInFolderEntity> = emptyList(),
 
     @OneToMany(mappedBy = "chatRoom", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-     var archiveChats: List<ArchiveChatEntity>,
+     var archiveChats: List<ArchiveChatEntity> = emptyList(),
 
     @OneToMany(mappedBy = "chatRoom", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-     var pinnedChats: List<PinnedChatEntity>
+     var pinnedChats: List<PinnedChatEntity> = emptyList()
 )
