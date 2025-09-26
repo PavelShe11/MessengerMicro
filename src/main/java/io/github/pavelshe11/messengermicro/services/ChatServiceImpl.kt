@@ -37,6 +37,7 @@ class ChatServiceImpl(
                 ?: participantTypeRepository.save(
                     ParticipantTypeEntity(typeName = participantDto.participantType)
                 )
+            log.info("Добавлен тип участника {}", participantDto.participantType)
 
             val participant = findOrCreateParticipant(
                 refId = participantDto.refId,
@@ -49,6 +50,7 @@ class ChatServiceImpl(
             )
 
             chatSendersRepository.save(chatSenders)
+            log.info("Создан чат {}", chatSenders.chatRoom)
         }
     }
 
@@ -80,6 +82,40 @@ class ChatServiceImpl(
 
     @Transactional
     override fun deleteChats(request: ChatDeletingRequestDto) {
+
+        val chatIds = request.chatsIdsToDeleting
+        if (chatIds.isNullOrEmpty()) {
+            log.error("Список не передан")
+            TODO("выбрасывать исключение пустго списка")
+        }
+
+        for (chatIdToDeleting in chatIds) {
+            val chatRoom = chatRoomRepository.findById(chatIdToDeleting).orElse(null) ?: continue
+
+            val sendersInChat = chatSendersRepository.findAllByChatRoom((chatRoom))
+            chatSendersRepository.deleteAll(sendersInChat)
+
+            chatRoomRepository.delete(chatRoom)
+
+            for (sender in sendersInChat) {
+                val participant = sender.participant
+
+                val isParticipantInOtherChats = chatSendersRepository.existsByParticipant(participant)
+                if (!isParticipantInOtherChats) {
+                    val participantType = participant.participantType
+
+                    participantRepository.delete(participant)
+
+                    val isThisParticipantTypeUsingByAnyone =
+                        participantRepository.existsByParticipantType(participantType)
+
+                    if (!isThisParticipantTypeUsingByAnyone) {
+                        participantTypeRepository.delete(participantType)
+                    }
+                }
+            }
+
+        }
     }
 
     companion object {
