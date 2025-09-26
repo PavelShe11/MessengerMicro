@@ -10,14 +10,14 @@ class ChatsFolderEntity (
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(nullable = false, updatable = false)
-     var id: UUID? = null,
+    val id: UUID? = null,
 
     @Column(name = "folder_name", nullable = false)
-     var folderName: String? = null,
+     var folderName: String,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "participant_id", referencedColumnName = "id", nullable = false)
-     val participant: ParticipantEntity? = null,
+     var participant: ParticipantEntity,
 
     @Column(name = "created_at", nullable = false)
      val createdAt: Instant = Instant.now(),
@@ -27,8 +27,8 @@ class ChatsFolderEntity (
 
     // For two-way communication with FK
     @OneToMany(mappedBy = "chatsFolder", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-     val chatsInFolders: List<ChatsInFolderEntity>? = null,
+     var chatsInFolders: List<ChatsInFolderEntity>,
 
     @OneToMany(mappedBy = "chatsFolder", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-     val pinnedChats: List<PinnedChatEntity>? = null
+     var pinnedChats: List<PinnedChatEntity>
 )

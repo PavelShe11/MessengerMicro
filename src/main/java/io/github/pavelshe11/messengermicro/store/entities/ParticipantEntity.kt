@@ -9,26 +9,26 @@ data class ParticipantEntity (
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(nullable = false, updatable = false)
-    var id: UUID? = null,
+    val id: UUID? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "participant_type_id", referencedColumnName = "id", nullable = false)
-    var participantType: ParticipantTypeEntity? = null,
+    var participantType: ParticipantTypeEntity,
 
     @Column(name = "ref_id", nullable = false)
     var refId: UUID,
 
 // For two-way communication with FK
     @OneToMany(mappedBy = "participant", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    val archiveChats: List<ArchiveChatEntity>? = null,
+    var archiveChats: List<ArchiveChatEntity>,
 
     @OneToMany(mappedBy = "participant", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    val pinnedChats: List<PinnedChatEntity>? = null,
+    var pinnedChats: List<PinnedChatEntity>,
 
     @OneToMany(mappedBy = "participant", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    val chatSenders: List<ChatSendersEntity>? = null,
+    var chatSenders: List<ChatSendersEntity>,
 
     @OneToMany(mappedBy = "participant", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    val chatsFolders: List<ChatsFolderEntity>? = null
+    var chatsFolders: List<ChatsFolderEntity>
 )
 

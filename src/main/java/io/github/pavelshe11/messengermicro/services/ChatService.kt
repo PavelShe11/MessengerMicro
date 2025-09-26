@@ -66,7 +66,8 @@ class ChatService(
         val remoteParticipant = participantGrpcService.existsByRefId(refId)
 
         if (remoteParticipant != null) {
-
+            log.error("Сущности с refId {} нет", refId)
+            //TODO: бросить ServerAnswerException
         }
 
         val newParticipant = ParticipantEntity(

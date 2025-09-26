@@ -10,7 +10,7 @@ data class ChatRoomEntity (
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(nullable = false, updatable = false)
-     var id: UUID? = null,
+    val id: UUID? = null,
 
     @Column(name = "created_at", nullable = false)
      val createdAt: Instant = Instant.now(),
@@ -20,17 +20,17 @@ data class ChatRoomEntity (
 
     // For two-way communication with FK
     @OneToMany(mappedBy = "chatRoom", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-     val messages: List<MessageEntity>? = null,
+     var messages: List<MessageEntity>,
 
     @OneToMany(mappedBy = "chatRoom", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-     val chatSenders: List<ChatSendersEntity>? = null,
+     var chatSenders: List<ChatSendersEntity>,
 
     @OneToMany(mappedBy = "chatRoom", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-     val chatsInFolder: List<ChatsInFolderEntity>? = null,
+     var chatsInFolder: List<ChatsInFolderEntity>,
 
     @OneToMany(mappedBy = "chatRoom", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-     val archiveChats: List<ArchiveChatEntity>? = null,
+     var archiveChats: List<ArchiveChatEntity>,
 
     @OneToMany(mappedBy = "chatRoom", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-     val pinnedChats: List<PinnedChatEntity>? = null
+     var pinnedChats: List<PinnedChatEntity>
 )

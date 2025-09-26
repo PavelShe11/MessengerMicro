@@ -10,10 +10,10 @@ data class ParticipantTypeEntity (
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(nullable = false, updatable = false)
-    var id: UUID? = null,
+    val id: UUID? = null,
 
     @Column(name = "type_name", nullable = false)
-    var typeName: String? = null,
+    var typeName: String,
 
     @Column(name = "created_at", nullable = false)
     val createdAt: Instant = Instant.now(),
@@ -23,5 +23,5 @@ data class ParticipantTypeEntity (
 
     // For two-way communication with FK
     @OneToMany(mappedBy = "participantType", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    val participants: List<ParticipantEntity>? = null
+    var participants: List<ParticipantEntity>
 )

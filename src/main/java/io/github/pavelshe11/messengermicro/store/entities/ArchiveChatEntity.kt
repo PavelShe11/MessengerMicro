@@ -10,15 +10,15 @@ data class ArchiveChatEntity (
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(nullable = false, updatable = false)
-    var id: UUID? = null,
+    val id: UUID? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_id", referencedColumnName = "id", nullable = false)
-    val chatRoom: ChatRoomEntity? = null,
+    val chatRoom: ChatRoomEntity,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "participant_id", referencedColumnName = "id", nullable = false)
-    val participant: ParticipantEntity? = null,
+    val participant: ParticipantEntity,
 
     @Column(name = "created_at")
     val createdAt: Instant = Instant.now()

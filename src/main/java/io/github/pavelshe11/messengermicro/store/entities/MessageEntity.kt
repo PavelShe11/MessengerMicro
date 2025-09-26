@@ -10,27 +10,27 @@ data class MessageEntity (
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(nullable = false, updatable = false)
-     var id: UUID? = null,
+    val id: UUID? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_id", referencedColumnName = "id", nullable = false)
-     val chatRoom: ChatRoomEntity? = null,
+     var chatRoom: ChatRoomEntity,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id", referencedColumnName = "id", nullable = false)
-     val chatSenders: ChatSendersEntity? = null,
+     var chatSenders: ChatSendersEntity,
 
     @Column(name = "message_text")
-     var messageText: String? = null,
+     var messageText: String,
 
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
-     var messageStatusType: MessageStatusType? = null,
+     var messageStatusType: MessageStatusType,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_message_id")
-     val parentMessage: MessageEntity? = null,
+     var parentMessage: MessageEntity,
 
     @OneToMany(mappedBy = "parentMessage", cascade = [CascadeType.ALL], orphanRemoval = true)
-     val replies: List<MessageEntity>? = null
+     var replies: List<MessageEntity>
 )

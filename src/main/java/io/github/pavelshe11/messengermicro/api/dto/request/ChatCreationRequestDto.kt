@@ -1,6 +1,5 @@
 package io.github.pavelshe11.messengermicro.api.dto.request
 
-import io.github.pavelshe11.messengermicro.store.entities.ParticipantEntity
 import io.swagger.v3.oas.annotations.media.Schema
 import java.util.UUID
 
