@@ -3,6 +3,8 @@ package io.github.pavelshe11.messengermicro.services
 import io.github.pavelshe11.messengermicro.api.client.grpc.ParticipantGrpcService
 import io.github.pavelshe11.messengermicro.api.dto.request.ChatCreationRequestDto
 import io.github.pavelshe11.messengermicro.api.dto.request.ChatDeletingRequestDto
+import io.github.pavelshe11.messengermicro.api.exceptions.ServerAnswerException
+import io.github.pavelshe11.messengermicro.normalizers.DataNormalizer
 import io.github.pavelshe11.messengermicro.store.entities.ChatRoomEntity
 import io.github.pavelshe11.messengermicro.store.entities.ChatSendersEntity
 import io.github.pavelshe11.messengermicro.store.entities.ParticipantEntity
@@ -11,6 +13,7 @@ import io.github.pavelshe11.messengermicro.store.repositories.ChatRoomRepository
 import io.github.pavelshe11.messengermicro.store.repositories.ChatSendersRepository
 import io.github.pavelshe11.messengermicro.store.repositories.ParticipantRepository
 import io.github.pavelshe11.messengermicro.store.repositories.ParticipantTypeRepository
+import io.github.pavelshe11.messengermicro.validators.ChatDataValidator
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -23,15 +26,19 @@ class ChatServiceImpl(
     private val participantRepository: ParticipantRepository,
     private val participantTypeRepository: ParticipantTypeRepository,
     private val chatSendersRepository: ChatSendersRepository,
-    private val participantGrpcService: ParticipantGrpcService
+    private val participantGrpcService: ParticipantGrpcService,
+    private val dataNormalizer: DataNormalizer,
+    private val dataValidator: ChatDataValidator
 ) : ChatService {
-    private val log: Logger = LoggerFactory.getLogger(ChatServiceImpl::class.java)
 
     @Transactional
     override fun createChat(request: ChatCreationRequestDto) {
+        val normalizedRequest = dataNormalizer.normalizeChatCreationRequest(request)
+        dataValidator.validateChatCreationRequest(normalizedRequest)
+
         val chatRoom = chatRoomRepository.save(ChatRoomEntity())
 
-        for (participantDto in request.participants) {
+        for (participantDto in normalizedRequest.participants) {
             val participantType = participantTypeRepository
                 .findByTypeName(participantDto.participantType)
                 ?: participantTypeRepository.save(
@@ -69,7 +76,7 @@ class ChatServiceImpl(
 
         if (remoteParticipant != null) {
             log.error("Сущности с refId {} нет", refId)
-            //TODO: бросить ServerAnswerException
+            throw ServerAnswerException()
         }
 
         val newParticipant = ParticipantEntity(
@@ -86,7 +93,7 @@ class ChatServiceImpl(
         val chatIds = request.chatsIdsToDeleting
         if (chatIds.isNullOrEmpty()) {
             log.error("Список не передан")
-            TODO("выбрасывать исключение пустго списка")
+            throw ServerAnswerException()
         }
 
         for (chatIdToDeleting in chatIds) {

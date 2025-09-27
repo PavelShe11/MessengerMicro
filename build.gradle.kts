@@ -29,6 +29,8 @@ extra["springGrpcVersion"] = "0.9.0"
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-web")
+    // для healthCheck
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
     // Для работы с бд
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     // Для работы с сессиями бд

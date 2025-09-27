@@ -34,6 +34,7 @@ public class SecurityConfig {
                                 ).permitAll()
                                 .requestMatchers("/messenger/v1/**").authenticated()
                                 .requestMatchers("/actuator/**").permitAll()
+                                .requestMatchers("/messenger/actuator/**").permitAll()
                                 .anyRequest().denyAll()
                 ).sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
