@@ -2,6 +2,7 @@ package io.github.pavelshe11.messengermicro.api.server.http.controllers
 
 import io.github.pavelshe11.messengermicro.api.dto.request.ChatCreationRequestDto
 import io.github.pavelshe11.messengermicro.api.dto.request.ChatDeletingRequestDto
+import io.github.pavelshe11.messengermicro.api.dto.response.ChatCreationResponseDto
 import io.github.pavelshe11.messengermicro.services.ChatService
 import io.github.pavelshe11.messengermicro.utils.JwtUtil
 import io.swagger.v3.oas.annotations.Operation
@@ -12,6 +13,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.util.UUID
 
 @RestController
 @Tag(name = "Управление чатами", description = "API для работы с чатами")
@@ -27,11 +29,11 @@ class ChatController(
     @PostMapping(value = [""], produces = ["application/json"])
     fun createChat(
         @RequestBody request: ChatCreationRequestDto
-    ): ResponseEntity<Void> {
+    ): ResponseEntity<ChatCreationResponseDto> {
         val accountId = jwtUtil.claimAccountId();
-        chatService.createChat(request, accountId)
-        log.info("Чат созадн")
-        return ResponseEntity.ok().build()
+        val response = chatService.createChat(request, accountId)
+        log.info("Метод создания чата завершен")
+        return ResponseEntity.ok(response)
     }
 
     @Operation(summary = "Метод удаления переданного списка ID чатов")
@@ -42,7 +44,7 @@ class ChatController(
     ): ResponseEntity<Void> {
 //        UUID accountId = jwtUtil.claimAccountId();
         chatService.deleteChats(request);
-        log.info("Чаты удалены")
+        log.info("Метод удаления чата завершен")
         return ResponseEntity.ok().build()
     }
 
