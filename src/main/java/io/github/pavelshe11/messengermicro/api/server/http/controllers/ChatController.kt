@@ -3,6 +3,7 @@ package io.github.pavelshe11.messengermicro.api.server.http.controllers
 import io.github.pavelshe11.messengermicro.api.dto.request.ChatCreationRequestDto
 import io.github.pavelshe11.messengermicro.api.dto.request.ChatDeletingRequestDto
 import io.github.pavelshe11.messengermicro.services.ChatService
+import io.github.pavelshe11.messengermicro.utils.JwtUtil
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
@@ -17,7 +18,8 @@ import org.springframework.web.bind.annotation.*
 @SecurityRequirement(name = "bearerTokenAuth")
 @RequestMapping("/messenger/v1/chat")
 class ChatController(
-    private val chatService: ChatService
+    private val chatService: ChatService,
+    private val jwtUtil: JwtUtil
 ) {
 
     @Operation(summary = "Метод созадния чата участникам и их типам")
@@ -26,8 +28,8 @@ class ChatController(
     fun createChat(
         @RequestBody request: ChatCreationRequestDto
     ): ResponseEntity<Void> {
-//        UUID accountId = jwtUtil.claimAccountId();
-        chatService.createChat(request)
+        val accountId = jwtUtil.claimAccountId();
+        chatService.createChat(request, accountId)
         log.info("Чат созадн")
         return ResponseEntity.ok().build()
     }

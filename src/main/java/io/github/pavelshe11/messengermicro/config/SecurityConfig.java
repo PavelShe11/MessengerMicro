@@ -35,6 +35,7 @@ public class SecurityConfig {
                                 .requestMatchers("/messenger/v1/**").authenticated()
                                 .requestMatchers("/actuator/**").permitAll()
                                 .requestMatchers("/messenger/actuator/**").permitAll()
+                                //TODO: определить, какие пути не нужны для запуска swagger и убрать их
                                 .anyRequest().denyAll()
                 ).sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)

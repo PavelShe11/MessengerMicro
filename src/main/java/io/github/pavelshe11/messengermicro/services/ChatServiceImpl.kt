@@ -32,18 +32,29 @@ class ChatServiceImpl(
 ) : ChatService {
 
     @Transactional
-    override fun createChat(request: ChatCreationRequestDto) {
+    override fun createChat(request: ChatCreationRequestDto, accountId: UUID) {
         val normalizedRequest = dataNormalizer.normalizeChatCreationRequest(request)
         dataValidator.validateChatCreationRequest(normalizedRequest)
 
         val chatRoom = chatRoomRepository.save(ChatRoomEntity())
 
+        val ownerParticipantType = getOrCreateParticipantType("account")
+
+        val ownerParticipant = findOrCreateParticipant(
+            refId = accountId,
+            participantType = ownerParticipantType
+        )
+
+        val ownerChatSenders = ChatSendersEntity(
+            chatRoom = chatRoom,
+            participant = ownerParticipant
+        )
+
+        chatSendersRepository.save(ownerChatSenders)
+        log.info("Чат создан с владельцем и первым участником {}", ownerParticipant.refId)
+
         for (participantDto in normalizedRequest.participants) {
-            val participantType = participantTypeRepository
-                .findByTypeName(participantDto.participantType)
-                ?: participantTypeRepository.save(
-                    ParticipantTypeEntity(typeName = participantDto.participantType)
-                )
+            val participantType = getOrCreateParticipantType(participantDto.participantType)
             log.info("Добавлен тип участника {}", participantDto.participantType)
 
             val participant = findOrCreateParticipant(
@@ -57,8 +68,14 @@ class ChatServiceImpl(
             )
 
             chatSendersRepository.save(chatSenders)
+            log.info("Добавлен участник {}", participant.refId)
             log.info("Создан чат {}", chatSenders.chatRoom)
         }
+    }
+
+    private fun getOrCreateParticipantType(typeName: String): ParticipantTypeEntity {
+        return participantTypeRepository.findByTypeName(typeName)
+            ?: participantTypeRepository.save(ParticipantTypeEntity(typeName = typeName))
     }
 
     private fun findOrCreateParticipant(
@@ -72,9 +89,11 @@ class ChatServiceImpl(
             return existingParticipant
         }
 
+        log.info("До запроса в networking. Участник {}", refId)
         val remoteParticipant = participantGrpcService.existsByRefId(refId)
+        log.info("Ответ запроса networking {}", remoteParticipant)
 
-        if (remoteParticipant != null) {
+        if (!remoteParticipant) {
             log.error("Сущности с refId {} нет", refId)
             throw ServerAnswerException()
         }
@@ -84,7 +103,7 @@ class ChatServiceImpl(
             participantType = participantType
         )
 
-        return newParticipant
+        return participantRepository.save(newParticipant)
     }
 
     @Transactional
