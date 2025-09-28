@@ -28,7 +28,8 @@ class ChatServiceImpl(
     private val chatSendersRepository: ChatSendersRepository,
     private val participantGrpcService: ParticipantGrpcService,
     private val dataNormalizer: DataNormalizer,
-    private val dataValidator: ChatDataValidator
+    private val dataValidator: ChatDataValidator,
+    private val chatDataValidator: ChatDataValidator
 ) : ChatService {
 
     @Transactional
@@ -47,11 +48,12 @@ class ChatServiceImpl(
 
         val ownerChatSenders = ChatSendersEntity(
             chatRoom = chatRoom,
-            participant = ownerParticipant
+            participant = requireNotNull(ownerParticipant) {log.error("Создатель чата не может быть null")}
         )
 
         chatSendersRepository.save(ownerChatSenders)
         log.info("Чат создан с владельцем и первым участником {}", ownerParticipant.refId)
+        val nonExistentParticipants = mutableSetOf<UUID>()
 
         for (participantDto in normalizedRequest.participants) {
             val participantType = getOrCreateParticipantType(participantDto.participantType)
@@ -62,6 +64,11 @@ class ChatServiceImpl(
                 participantType = participantType
             )
 
+            if (participant == null) {
+                nonExistentParticipants.add(participantDto.refId)
+                continue
+            }
+
             val chatSenders = ChatSendersEntity(
                 chatRoom = chatRoom,
                 participant = participant
@@ -70,6 +77,11 @@ class ChatServiceImpl(
             chatSendersRepository.save(chatSenders)
             log.info("Добавлен участник {}", participant.refId)
             log.info("Создан чат {}", chatSenders.chatRoom)
+        }
+
+        if (nonExistentParticipants.isNotEmpty()) {
+            log.error("Не найдены участники с refId: {}", nonExistentParticipants.joinToString(", "))
+            throw ServerAnswerException()
         }
     }
 
@@ -81,7 +93,7 @@ class ChatServiceImpl(
     private fun findOrCreateParticipant(
         refId: UUID,
         participantType: ParticipantTypeEntity
-    ): ParticipantEntity {
+    ): ParticipantEntity? {
         val existingParticipant =
             participantRepository.findByRefId(refId)
 
@@ -93,35 +105,42 @@ class ChatServiceImpl(
         val remoteParticipant = participantGrpcService.existsByRefId(refId)
         log.info("Ответ запроса networking {}", remoteParticipant)
 
-        if (!remoteParticipant) {
-            log.error("Сущности с refId {} нет", refId)
-            throw ServerAnswerException()
+        return if (remoteParticipant) {
+            val newParticipant = ParticipantEntity(
+                refId = refId,
+                participantType = participantType
+            )
+            participantRepository.save(newParticipant)
+        } else {
+            null
         }
-
-        val newParticipant = ParticipantEntity(
-            refId = refId,
-            participantType = participantType
-        )
-
-        return participantRepository.save(newParticipant)
     }
 
     @Transactional
     override fun deleteChats(request: ChatDeletingRequestDto) {
-
+        log.info("Вызван метод даления чатов")
         val chatIds = request.chatsIdsToDeleting
         if (chatIds.isNullOrEmpty()) {
             log.error("Список не передан")
             throw ServerAnswerException()
         }
 
+        chatDataValidator.validateChatDeletingRequest(request)
+
+        val nonExistentChats = mutableSetOf<UUID>()
+
         for (chatIdToDeleting in chatIds) {
-            val chatRoom = chatRoomRepository.findById(chatIdToDeleting).orElse(null) ?: continue
+            val chatRoom = chatRoomRepository.findById(chatIdToDeleting).orElse(null)
+            if (chatRoom == null) {
+                nonExistentChats.add(chatIdToDeleting)
+                continue
+            }
 
             val sendersInChat = chatSendersRepository.findAllByChatRoom((chatRoom))
             chatSendersRepository.deleteAll(sendersInChat)
 
             chatRoomRepository.delete(chatRoom)
+            log.info("Удаление чата {}", chatRoom.id)
 
             for (sender in sendersInChat) {
                 val participant = sender.participant
@@ -140,7 +159,10 @@ class ChatServiceImpl(
                     }
                 }
             }
-
+        }
+        if (nonExistentChats.isNotEmpty()) {
+            log.error("Не найдены чаты id: {}", nonExistentChats.joinToString(", "))
+            throw ServerAnswerException()
         }
     }
 
