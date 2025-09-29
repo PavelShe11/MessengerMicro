@@ -1,11 +1,15 @@
 package io.github.pavelshe11.messengermicro.api.server.http.controllers
 
+import io.github.pavelshe11.messengermicro.annotations.CommonApiResponses
+import io.github.pavelshe11.messengermicro.api.dto.ErrorDto
 import io.github.pavelshe11.messengermicro.api.dto.request.ChatCreationRequestDto
 import io.github.pavelshe11.messengermicro.api.dto.request.ChatDeletingRequestDto
 import io.github.pavelshe11.messengermicro.api.dto.response.ChatCreationResponseDto
 import io.github.pavelshe11.messengermicro.services.ChatService
 import io.github.pavelshe11.messengermicro.utils.JwtUtil
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -13,7 +17,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import java.util.UUID
 
 @RestController
 @Tag(name = "Управление чатами", description = "API для работы с чатами")
@@ -26,6 +29,12 @@ class ChatController(
 
     @Operation(summary = "Метод созадния чата участникам и их типам")
     @ApiResponse(responseCode = "200", description = "Чат успешно создан")
+    @ApiResponse(
+        responseCode = "400",
+        description = "Ошибка валидации данных",
+        content = [Content(schema = Schema(implementation = ErrorDto::class))]
+    )
+    @CommonApiResponses
     @PostMapping(value = [""], produces = ["application/json"])
     fun createChat(
         @RequestBody request: ChatCreationRequestDto
@@ -38,11 +47,11 @@ class ChatController(
 
     @Operation(summary = "Метод удаления переданного списка ID чатов")
     @ApiResponse(responseCode = "200", description = "Чаты успешно удалены")
+    @CommonApiResponses
     @DeleteMapping(value = [""], produces = ["application/json"])
     fun deleteChats(
         @RequestBody request: ChatDeletingRequestDto
     ): ResponseEntity<Void> {
-//        UUID accountId = jwtUtil.claimAccountId();
         chatService.deleteChats(request);
         log.info("Метод удаления чата завершен")
         return ResponseEntity.ok().build()

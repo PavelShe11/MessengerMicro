@@ -8,16 +8,22 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.context.MessageSource
 import org.springframework.stereotype.Component
+import java.util.*
 
 @Component
 class ChatDataValidator(
     private val messageSource: MessageSource,
     private val commonValidators: CommonValidators
 ) {
+    private fun getMessage(code: String, args: Array<Any>? = null): String =
+        messageSource.getMessage(code, args, Locale.getDefault())
+
     fun validateInputAndReturnOrThrow(vararg validators: () -> FieldErrorDto?) {
         val errors = validators.mapNotNull { it() }
 
         if (errors.isNotEmpty()) {
+            errors.forEach { log.error("Validation error: field = ${it.field}, message = ${it.message}") }
+
             throw FieldValidationException(errors.toSet())
         }
     }
@@ -27,23 +33,41 @@ class ChatDataValidator(
         val validators = mutableListOf<() -> FieldErrorDto?>()
 
         chatCreationRequestDto.participants.forEachIndexed { index, participant ->
+
             validators.add {
-                commonValidators.validateNotBlank(
+                val message = commonValidators.validateNotBlank(
                     participant.participantType,
                     "participants[$index].participantType"
                 )
+                message?.let {
+                    return@add FieldErrorDto(
+                        "participants[$index].participantType",
+                        getMessage(it)
+                    )
+                }
+                null
             }
 
             validators.add {
-                commonValidators.validateUUID(participant.refId.toString(),
-                    "participants[$index].refId")
+                val message = commonValidators.validateUUID(
+                    participant.refId.toString(),
+                    "participants[$index].refId"
+                )
+                message?.let {
+                    return@add FieldErrorDto(
+                        "participants[$index].refId",
+                        getMessage(it)
+                    )
+                }
             }
 
             validators.add {
-                val isValidParticipantType = participant.participantType.matches(Regex("^[a-zA-Z_]+$"))
-                if (!isValidParticipantType) {
-                    return@add FieldErrorDto("participants[$index].participantType",
-                        "Тип участника должен содержать только английские буквы и подчеркивания.")
+                val isValid = participant.participantType.matches(Regex("^[a-zA-Z_]+$"))
+                if (!isValid) {
+                    return@add FieldErrorDto(
+                        "participants[$index].participantType",
+                        getMessage("error.participantType.invalid")
+                    )
                 }
                 null
             }
@@ -56,37 +80,21 @@ class ChatDataValidator(
         log.info("Валидация запроса удаления чата")
         val validators = mutableListOf<() -> FieldErrorDto?>()
 
-        chatDeletingRequestDto.chatsIdsToDeleting?.forEachIndexed { index, chatId->
+        chatDeletingRequestDto.chatsIdsToDeleting?.forEachIndexed { index, chatId ->
             validators.add {
-                commonValidators.validateUUID(chatId.toString(),
-                    "chatsIdsToDeleting[$index]")
+                val message = commonValidators.validateUUID(
+                    chatId.toString(),
+                    "chatsIdsToDeleting[$index]"
+                )
+                message?.let {
+                    return@add FieldErrorDto("chatsIdsToDeleting[$index]", getMessage(it))
+                }
+                null
             }
         }
         log.info("Валидация запроса удаления чата завершена")
         validateInputAndReturnOrThrow(*validators.toTypedArray())
     }
-
-//    protected fun createFieldErrorDto(
-//        field: String?,
-//        obj: Array<Any?>?,
-//        message: String?
-//    ): FieldErrorDto {
-//        return FieldErrorDto(
-//            field,
-//            messageSource.getMessage(message, obj, LocaleContextHolder.getLocale())
-//        )
-//    }
-//
-//    protected fun createFieldErrorDto(
-//        field: String?, obj: Array<Any?>?, message: String?,
-//        objectId: UUID?
-//    ): FieldErrorDto {
-//        return FieldErrorDto(
-//            field,
-//            messageSource.getMessage(message, obj, LocaleContextHolder.getLocale()),
-//            objectId
-//        )
-//    }
 
     companion object {
         private val log: Logger = LoggerFactory.getLogger(ChatDataValidator::class.java)
