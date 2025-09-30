@@ -5,6 +5,7 @@ import io.github.pavelshe11.messengermicro.api.dto.ErrorDto
 import io.github.pavelshe11.messengermicro.api.dto.request.ChatCreationRequestDto
 import io.github.pavelshe11.messengermicro.api.dto.request.ChatDeletingRequestDto
 import io.github.pavelshe11.messengermicro.api.dto.response.ChatCreationResponseDto
+import io.github.pavelshe11.messengermicro.api.exceptions.ChatNotFoundException
 import io.github.pavelshe11.messengermicro.services.ChatService
 import io.github.pavelshe11.messengermicro.utils.JwtUtil
 import io.swagger.v3.oas.annotations.Operation
@@ -47,6 +48,16 @@ class ChatController(
 
     @Operation(summary = "Метод удаления переданного списка ID чатов")
     @ApiResponse(responseCode = "200", description = "Чаты успешно удалены")
+    @ApiResponse(
+        responseCode = "404",
+        description = "Чат не найден. Возможная причина: ChatNotFoundException",
+        content = [
+            Content(
+                mediaType = "application/json",
+                schema = Schema(implementation = ErrorDto::class)
+            )
+        ]
+    )
     @CommonApiResponses
     @DeleteMapping(value = [""], produces = ["application/json"])
     fun deleteChats(

@@ -10,13 +10,11 @@ import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import java.util.*
-import java.util.List
-import kotlin.collections.toList
 
 @RestControllerAdvice
 class CustomExceptionController(
     private val messageSource: MessageSource,
-    ) {
+) {
     @ExceptionHandler(IllegalArgumentException::class)
     fun handleIllegalArgumentException(e: Exception): ResponseEntity<String> {
         return ResponseEntity(HttpStatus.BAD_REQUEST)
@@ -45,12 +43,30 @@ class CustomExceptionController(
 
         val errorDto = ErrorDto(
             error = getMessage("validation.error"),
-            detailedErrors = listOf(FieldErrorDto(
-                field = null,
-                message = getMessage("request.invalid")))
+            detailedErrors = listOf(
+                FieldErrorDto(
+                    field = null,
+                    message = getMessage("request.invalid")
+                )
+            )
         )
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDto)
+    }
+
+    @ExceptionHandler(ChatNotFoundException::class)
+    fun handleChatNotFoundException(ex: ChatNotFoundException): ResponseEntity<ErrorDto> {
+        val errorDto = ErrorDto(
+            error = getMessage("handle.error"),
+            detailedErrors = List(ex.chatIds.size) { index ->
+                FieldErrorDto(
+                    field = "chats[$index].id",
+                    message = getMessage("chat.not.found")
+                )
+            }
+        )
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDto)
     }
 
     private fun getMessage(code: String, args: Array<Any>? = null): String =

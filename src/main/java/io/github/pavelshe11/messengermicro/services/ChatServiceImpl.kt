@@ -4,6 +4,7 @@ import io.github.pavelshe11.messengermicro.api.client.grpc.ParticipantGrpcServic
 import io.github.pavelshe11.messengermicro.api.dto.request.ChatCreationRequestDto
 import io.github.pavelshe11.messengermicro.api.dto.request.ChatDeletingRequestDto
 import io.github.pavelshe11.messengermicro.api.dto.response.ChatCreationResponseDto
+import io.github.pavelshe11.messengermicro.api.exceptions.ChatNotFoundException
 import io.github.pavelshe11.messengermicro.api.exceptions.ServerAnswerException
 import io.github.pavelshe11.messengermicro.normalizers.DataNormalizer
 import io.github.pavelshe11.messengermicro.store.entities.ChatRoomEntity
@@ -180,7 +181,7 @@ class ChatServiceImpl(
         }
         if (nonExistentChats.isNotEmpty()) {
             log.error("Не найдены чаты id: {}", nonExistentChats.joinToString(", "))
-            throw ServerAnswerException()
+            throw ChatNotFoundException(nonExistentChats)
         }
     }
 
