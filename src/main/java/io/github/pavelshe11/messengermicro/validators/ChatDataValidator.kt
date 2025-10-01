@@ -35,28 +35,32 @@ class ChatDataValidator(
         chatCreationRequestDto.participants.forEachIndexed { index, participant ->
 
             validators.add {
+                val fieldName = "participantType"
                 val message = commonValidators.validateNotBlank(
                     participant.participantType,
-                    "participants[$index].participantType"
+                    fieldName
                 )
                 message?.let {
                     return@add FieldErrorDto(
-                        "participants[$index].participantType",
-                        getMessage(it)
+                        fieldName,
+                        getMessage(it),
+                        objectId = participant.refId
                     )
                 }
                 null
             }
 
             validators.add {
+                val fieldName = "refId"
                 val message = commonValidators.validateUUID(
                     participant.refId.toString(),
-                    "participants[$index].refId"
+                    fieldName
                 )
                 message?.let {
                     return@add FieldErrorDto(
-                        "participants[$index].refId",
-                        getMessage(it)
+                        fieldName,
+                        getMessage(it),
+                        objectId = participant.refId
                     )
                 }
             }
@@ -79,15 +83,17 @@ class ChatDataValidator(
     fun validateChatDeletingRequest(chatDeletingRequestDto: ChatDeletingRequestDto) {
         log.info("Валидация запроса удаления чата")
         val validators = mutableListOf<() -> FieldErrorDto?>()
+        val fieldName = "chatsIdsToDeleting"
 
-        chatDeletingRequestDto.chatsIdsToDeleting?.forEachIndexed { index, chatId ->
+        chatDeletingRequestDto.chatsIdsToDeleting?.forEachIndexed { _, chatId ->
             validators.add {
+
                 val message = commonValidators.validateUUID(
                     chatId.toString(),
-                    "chatsIdsToDeleting[$index]"
+                    fieldName
                 )
                 message?.let {
-                    return@add FieldErrorDto("chatsIdsToDeleting[$index]", getMessage(it))
+                    return@add FieldErrorDto(fieldName, getMessage(it), objectId = chatId)
                 }
                 null
             }
