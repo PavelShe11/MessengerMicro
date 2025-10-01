@@ -71,11 +71,6 @@ class ChatServiceImpl(
         }
 
         val participantIds = allParticipants.mapNotNull { it.id }.toSet()
-        val existingChat = findExistingChatWithParticipantsIds(participantIds)
-        if (existingChat != null) {
-            log.info("Чат с участниками {} уже существует.", participantIds)
-            return ChatCreationResponseDto(chatId = existingChat.id!!)
-        }
 
         val newChat = createNewChat(allParticipants)
         log.info("Создан новый чат с участниками: {}", participantIds)
@@ -93,15 +88,6 @@ class ChatServiceImpl(
             log.info("Добавлен участник {} в чат {}", participant.refId, chatRoom.id)
         }
         return chatRoom
-    }
-
-    private fun findExistingChatWithParticipantsIds(participantIds: Set<UUID>): ChatRoomEntity? {
-        log.info("Вызван метод поиска существующего чата")
-        val existingChatIdOptional = chatSendersRepository.findExistingChat(participantIds, participantIds.size)
-        if (existingChatIdOptional.isEmpty) return null
-
-        val chatId = existingChatIdOptional.get()
-        return chatRoomRepository.findById(chatId).orElse(null)
     }
 
     private fun getOrCreateParticipantType(typeName: String): ParticipantTypeEntity {
