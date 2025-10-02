@@ -58,10 +58,11 @@ class CustomExceptionController(
     fun handleChatNotFoundException(ex: ChatNotFoundException): ResponseEntity<ErrorDto> {
         val errorDto = ErrorDto(
             error = getMessage("handle.error"),
-            detailedErrors = List(ex.chatIds.size) { index ->
+            detailedErrors = ex.chatIds.map { chatId ->
                 FieldErrorDto(
-                    field = "chats[$index].id",
-                    message = getMessage("chat.not.found")
+                    field = "chatsIdsToDeleting",
+                    message = getMessage("chat.not.found"),
+                    objectId = chatId
                 )
             }
         )

@@ -31,18 +31,17 @@ class ChatDataValidator(
     fun validateChatCreationRequest(chatCreationRequestDto: ChatCreationRequestDto) {
         log.info("Валидация запроса создания чата")
         val validators = mutableListOf<() -> FieldErrorDto?>()
-
-        chatCreationRequestDto.participants.forEachIndexed { index, participant ->
+        val fieldNameParticipantType = "participantType"
+        chatCreationRequestDto.participants.forEachIndexed { _, participant ->
 
             validators.add {
-                val fieldName = "participantType"
                 val message = commonValidators.validateNotBlank(
                     participant.participantType,
-                    fieldName
+                    fieldNameParticipantType
                 )
                 message?.let {
                     return@add FieldErrorDto(
-                        fieldName,
+                        fieldNameParticipantType,
                         getMessage(it),
                         objectId = participant.refId
                     )
@@ -69,8 +68,9 @@ class ChatDataValidator(
                 val isValid = participant.participantType.matches(Regex("^[a-zA-Z_]+$"))
                 if (!isValid) {
                     return@add FieldErrorDto(
-                        "participants[$index].participantType",
-                        getMessage("error.participantType.invalid")
+                        fieldNameParticipantType,
+                        getMessage("error.participantType.invalid"),
+                        objectId = participant.refId
                     )
                 }
                 null
