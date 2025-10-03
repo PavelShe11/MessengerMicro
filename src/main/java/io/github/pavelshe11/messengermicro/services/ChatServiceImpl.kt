@@ -107,8 +107,11 @@ class ChatServiceImpl(
         }
 
         log.info("До запроса в networking. Участник {}", refId)
-        val existsRemoteParticipant = participantGrpcService.existsByRefId(refId)
-        log.info("Ответ запроса networking {}", existsRemoteParticipant)
+        val existsRemoteParticipant = participantGrpcService.existsByRefIdAndParticipantType(
+            refId,
+            participantType.typeName
+        )
+        log.info("Ответ запроса networking о существовании участника: {}", existsRemoteParticipant)
 
         return if (existsRemoteParticipant) {
             val newParticipant = ParticipantEntity(

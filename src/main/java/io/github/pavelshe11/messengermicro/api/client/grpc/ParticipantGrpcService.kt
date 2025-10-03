@@ -1,7 +1,7 @@
 package io.github.pavelshe11.messengermicro.api.client.grpc
 
 import io.github.pavelshe11.messengermicro.grpc.ParticipantServiceGrpc
-import io.github.pavelshe11.messengermicro.grpc.findByRefIdProto
+import io.github.pavelshe11.messengermicro.grpc.findByRefIdAndParticipantTypeProto
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -10,12 +10,13 @@ class ParticipantGrpcService(
     private val stub: ParticipantServiceGrpc.ParticipantServiceBlockingStub
 ) {
 
-    fun existsByRefId(refId: UUID): Boolean {
-        val request = findByRefIdProto.existsByRefIdRequest.newBuilder()
+    fun existsByRefIdAndParticipantType(refId: UUID, participantType: String): Boolean {
+        val request = findByRefIdAndParticipantTypeProto.existsByRefIdAndParticipantTypeRequest.newBuilder()
             .setRefId(refId.toString())
+            .setParticipantType(participantType)
             .build()
 
-        val response = stub.findByRefId(request)
+        val response = stub.findByRefIdAndParticipantType(request)
         return response.existingEntity
     }
 }
