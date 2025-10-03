@@ -1,0 +1,19 @@
+{
+  "methodConfig": [
+    {
+      "name": [
+        {
+          "service": "io.github.pavelshe11.messengermicro.grpc.ParticipantService",
+          "method": "existsByRefId"
+        }
+      ],
+      "retryPolicy": {
+        "maxAttempts": 2147483647,
+        "initialBackoff": "1s",
+        "maxBackoff": "60s",
+        "backoffMultiplier": 2,
+        "retryableStatusCodes": ["UNAVAILABLE"]
+      }
+    }
+  ]
+}
