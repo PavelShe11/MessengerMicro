@@ -1,9 +1,14 @@
 package io.github.pavelshe11.messengermicro.api.server.http.controllers
 
 import io.github.pavelshe11.messengermicro.annotations.CommonApiResponses
+import io.github.pavelshe11.messengermicro.api.dto.ErrorDto
 import io.github.pavelshe11.messengermicro.api.dto.request.MessageDeletingRequestDto
 import io.github.pavelshe11.messengermicro.api.dto.request.MessageSendingRequestDto
 import io.github.pavelshe11.messengermicro.services.MessageService
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
@@ -20,8 +25,15 @@ class MessageController(
     private val messageService: MessageService,
 ) {
 
-    @PostMapping("/send")
+    @Operation(summary = "Метод отправки сообщения")
+    @ApiResponse(responseCode = "200", description = "Сообщение успешно отправлено")
+    @ApiResponse(
+        responseCode = "400",
+        description = "Ошибка валидации данных",
+        content = [Content(schema = Schema(implementation = ErrorDto::class))]
+    )
     @CommonApiResponses
+    @PostMapping(value=["/send"], produces = ["application/json"])
     fun sendMessage(
         request: MessageSendingRequestDto
     ): ResponseEntity<Void> {
@@ -29,8 +41,20 @@ class MessageController(
         return ResponseEntity.ok().build()
     }
 
-    @DeleteMapping("/delete")
+    @Operation(summary = "Метод удаления сообщений по ID")
+    @ApiResponse(responseCode = "200", description = "Сообщения успешно удалены")
+    @ApiResponse(
+        responseCode = "404",
+        description = "Сообщение не найдено. Возможная причина: MessageNotFoundException",
+        content = [
+            Content(
+                mediaType = "application/json",
+                schema = Schema(implementation = ErrorDto::class)
+            )
+        ]
+    )
     @CommonApiResponses
+    @DeleteMapping(value = ["/delete"], produces = ["application/json"])
     fun deleteMessage(
         request: MessageDeletingRequestDto
     ): ResponseEntity<Void> {
