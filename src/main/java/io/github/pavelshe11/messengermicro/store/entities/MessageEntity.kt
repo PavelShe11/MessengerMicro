@@ -2,6 +2,7 @@ package io.github.pavelshe11.messengermicro.store.entities
 
 import io.github.pavelshe11.messengermicro.store.enums.MessageStatusType
 import jakarta.persistence.*
+import java.time.Instant
 import java.util.*
 
 @Entity
@@ -20,7 +21,7 @@ data class MessageEntity (
     @JoinColumn(name = "sender_id", referencedColumnName = "id", nullable = false)
      var chatSenders: ChatSendersEntity,
 
-    @Column(name = "message_text")
+    @Column(name = "message_text", nullable = false)
      var messageText: String,
 
     @Column(name = "status", nullable = false)
@@ -29,7 +30,16 @@ data class MessageEntity (
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_message_id")
-     var parentMessage: MessageEntity,
+    var parentMessage: MessageEntity? = null,
+
+    @Column(nullable = false)
+    var draft: Boolean = false,
+
+    @Column(name = "sending_time", nullable = false)
+    var sendingTime: Instant = Instant.now(),
+
+    @Column(name = "updated_at")
+    var updatedAt: Instant = Instant.now(),
 
     @OneToMany(mappedBy = "parentMessage", cascade = [CascadeType.ALL], orphanRemoval = true)
      var replies: List<MessageEntity> = emptyList()

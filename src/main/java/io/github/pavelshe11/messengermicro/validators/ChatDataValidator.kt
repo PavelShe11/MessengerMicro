@@ -3,32 +3,15 @@ package io.github.pavelshe11.messengermicro.validators
 import io.github.pavelshe11.messengermicro.api.dto.FieldErrorDto
 import io.github.pavelshe11.messengermicro.api.dto.request.ChatCreationRequestDto
 import io.github.pavelshe11.messengermicro.api.dto.request.ChatDeletingRequestDto
-import io.github.pavelshe11.messengermicro.api.exceptions.FieldValidationException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.context.MessageSource
 import org.springframework.stereotype.Component
-import java.util.*
 
 @Component
 class ChatDataValidator(
-    private val messageSource: MessageSource,
     private val commonValidators: CommonValidators
 ) {
-    private fun getMessage(code: String, args: Array<Any>? = null): String =
-        messageSource.getMessage(code, args, Locale.getDefault())
-
-    fun validateInputAndReturnOrThrow(vararg validators: () -> FieldErrorDto?) {
-        val errors = validators.mapNotNull { it() }
-
-        if (errors.isNotEmpty()) {
-            errors.forEach { log.error("Validation error: field = ${it.field}, message = ${it.message}") }
-
-            throw FieldValidationException(errors.toSet())
-        }
-    }
-
-    fun validateChatCreationRequest(chatCreationRequestDto: ChatCreationRequestDto) {
+        fun validateChatCreationRequest(chatCreationRequestDto: ChatCreationRequestDto) {
         log.info("Валидация запроса создания чата")
         val validators = mutableListOf<() -> FieldErrorDto?>()
         val fieldNameParticipantType = "participantType"
@@ -42,7 +25,7 @@ class ChatDataValidator(
                 message?.let {
                     return@add FieldErrorDto(
                         fieldNameParticipantType,
-                        getMessage(it),
+                        commonValidators.getMessage(it),
                         objectId = participant.refId
                     )
                 }
@@ -58,7 +41,7 @@ class ChatDataValidator(
                 message?.let {
                     return@add FieldErrorDto(
                         fieldName,
-                        getMessage(it),
+                        commonValidators.getMessage(it),
                         objectId = participant.refId
                     )
                 }
@@ -69,7 +52,7 @@ class ChatDataValidator(
                 if (!isValid) {
                     return@add FieldErrorDto(
                         fieldNameParticipantType,
-                        getMessage("error.participantType.invalid"),
+                        commonValidators.getMessage("error.participantType.invalid"),
                         objectId = participant.refId
                     )
                 }
@@ -77,7 +60,7 @@ class ChatDataValidator(
             }
         }
         log.info("Валидация запроса создания чата завершена")
-        validateInputAndReturnOrThrow(*validators.toTypedArray())
+            commonValidators.validateInputAndReturnOrThrow(*validators.toTypedArray())
     }
 
     fun validateChatDeletingRequest(chatDeletingRequestDto: ChatDeletingRequestDto) {
@@ -93,13 +76,13 @@ class ChatDataValidator(
                     fieldName
                 )
                 message?.let {
-                    return@add FieldErrorDto(fieldName, getMessage(it), objectId = chatId)
+                    return@add FieldErrorDto(fieldName, commonValidators.getMessage(it), objectId = chatId)
                 }
                 null
             }
         }
         log.info("Валидация запроса удаления чата завершена")
-        validateInputAndReturnOrThrow(*validators.toTypedArray())
+        commonValidators.validateInputAndReturnOrThrow(*validators.toTypedArray())
     }
 
     companion object {

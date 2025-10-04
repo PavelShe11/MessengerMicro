@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import java.util.*
 
-interface ChatSendersRepository : JpaRepository<ChatSendersEntity?, UUID?> {
+interface ChatSendersRepository : JpaRepository<ChatSendersEntity, UUID?> {
     fun findAllByChatRoom(chatRoom: ChatRoomEntity): List<ChatSendersEntity>
     fun existsByParticipant(participant: ParticipantEntity): Boolean
 
