@@ -1,8 +1,10 @@
 package io.github.pavelshe11.messengermicro.validators
 
 import io.github.pavelshe11.messengermicro.api.dto.FieldErrorDto
+import io.github.pavelshe11.messengermicro.api.dto.request.MessageDeletingRequestDto
 import io.github.pavelshe11.messengermicro.api.dto.request.MessageSendingRequestDto
 import io.github.pavelshe11.messengermicro.store.enums.MessageStatusType
+import io.github.pavelshe11.messengermicro.validators.ChatDataValidator.Companion
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -114,6 +116,28 @@ class MessageDataValidator(
             return (FieldErrorDto(fieldName, commonValidators.getMessage(it), objectId = chatRoomId))
         }
         return null
+    }
+
+    fun validateMessagesDeletingRequest(request: MessageDeletingRequestDto) {
+        log.info("Валидация запроса удаления сообщений")
+        val validators = mutableListOf<() -> FieldErrorDto?>()
+        val fieldName = "messagesIdsToDeleting"
+
+        request.messagesIdsToDeleting?.forEachIndexed { _, messageId ->
+            validators.add {
+
+                val message = commonValidators.validateUUID(
+                    messageId.toString(),
+                    fieldName
+                )
+                message?.let {
+                    return@add FieldErrorDto(fieldName, commonValidators.getMessage(it), objectId = messageId)
+                }
+                null
+            }
+        }
+        log.info("Валидация запроса удаления сообщений завершена")
+        commonValidators.validateInputAndReturnOrThrow(*validators.toTypedArray())
     }
 
     companion object {

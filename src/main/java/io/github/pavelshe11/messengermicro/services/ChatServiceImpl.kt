@@ -126,7 +126,7 @@ class ChatServiceImpl(
 
     @Transactional
     override fun deleteChats(request: ChatDeletingRequestDto) {
-        log.info("Вызван метод даления чатов")
+        log.info("Вызван метод удаления чатов")
         val chatIds = request.chatsIdsToDeleting
         if (chatIds.isNullOrEmpty()) {
             log.error("Список не передан")

@@ -2,6 +2,7 @@ package io.github.pavelshe11.messengermicro.services
 
 import io.github.pavelshe11.messengermicro.api.dto.request.MessageDeletingRequestDto
 import io.github.pavelshe11.messengermicro.api.dto.request.MessageSendingRequestDto
+import io.github.pavelshe11.messengermicro.api.exceptions.MessageNotFoundException
 import io.github.pavelshe11.messengermicro.api.exceptions.ServerAnswerException
 import io.github.pavelshe11.messengermicro.normalizers.DataNormalizer
 import io.github.pavelshe11.messengermicro.store.entities.MessageEntity
@@ -12,6 +13,7 @@ import io.github.pavelshe11.messengermicro.validators.MessageDataValidator
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.Instant
+import java.util.*
 
 @Service
 class MessageServiceImpl(
@@ -62,7 +64,29 @@ class MessageServiceImpl(
     }
 
     override fun deleteMessage(request: MessageDeletingRequestDto) {
-        TODO("Not yet implemented")
+        log.info("Вызван метод удаления сообщений")
+        val messagesIds = request.messagesIdsToDeleting
+        if (messagesIds.isNullOrEmpty()) {
+            log.error("Список не передан")
+            throw ServerAnswerException()
+        }
+
+        dataValidator.validateMessagesDeletingRequest(request)
+
+        val nonExistentMessages = mutableSetOf<UUID>()
+
+        for (messageIdToDeleting in messagesIds) {
+            val message = messageRepository.findById(messageIdToDeleting).orElse(null)
+            if (message == null) {
+                nonExistentMessages.add(messageIdToDeleting)
+                continue
+            }
+        }
+
+        if (nonExistentMessages.isNotEmpty()) {
+            log.error("Не найдены сообщения с id: {}", nonExistentMessages.joinToString(", "))
+            throw MessageNotFoundException(nonExistentMessages)
+        }
 
         // TODO: отправить в Kafka / WebSocket
     }
