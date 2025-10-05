@@ -21,7 +21,6 @@ class DataNormalizer {
         return MessageSendingRequestDto(
             chatRoomId = request.chatRoomId,
             messageText = normalizeNullableString(request.messageText) ?: "",
-            messageStatusType = request.messageStatusType,
             parentMessageId = request.parentMessageId,
         )
     }

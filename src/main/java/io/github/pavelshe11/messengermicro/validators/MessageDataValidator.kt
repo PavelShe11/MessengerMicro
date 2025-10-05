@@ -22,7 +22,6 @@ class MessageDataValidator(
 
         validators.add { validateMessageText(request.messageText) }
 
-        validators.add { validateMessageStatusType(request.messageStatusType) }
 
         validators.add { validateParentMessageId(request.parentMessageId) }
 
@@ -47,24 +46,6 @@ class MessageDataValidator(
         return null
     }
 
-    private fun validateMessageStatusType(messageStatusType: MessageStatusType?): FieldErrorDto? {
-        val fieldName = "messageStatusType"
-
-        if (messageStatusType == null) {
-            return FieldErrorDto(fieldName, commonValidators.getMessage("field.empty"))
-        }
-
-        val allowedTypes = MessageStatusType.entries.toSet()
-        if (messageStatusType !in allowedTypes) {
-            return FieldErrorDto(
-                fieldName,
-                commonValidators.getMessage("error.messageStatus.invalid"),
-            )
-        }
-
-        return null
-    }
-
     private fun validateMessageText(messageText: String?): FieldErrorDto? {
         val fieldName = "messageText"
 
@@ -76,26 +57,6 @@ class MessageDataValidator(
             return (FieldErrorDto(fieldName, commonValidators.getMessage(it)))
         }
 
-        return null
-    }
-
-    private fun validateChatSenderId(chatSenderId: UUID?): FieldErrorDto? {
-        val fieldName = "chatSenderId"
-
-        val message2 = commonValidators.validateUUID(
-            chatSenderId.toString(),
-            fieldName
-        )
-        val message1 = commonValidators.validateNotBlank(
-            chatSenderId.toString(),
-            fieldName
-        )
-        message1?.let {
-            return (FieldErrorDto(fieldName, commonValidators.getMessage(it), objectId = chatSenderId))
-        }
-        message2?.let {
-            return (FieldErrorDto(fieldName, commonValidators.getMessage(it), objectId = chatSenderId))
-        }
         return null
     }
 

@@ -13,10 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @Tag(name = "Управление сообщениями", description = "API для работы с сообщениями")
@@ -59,9 +56,9 @@ class MessageController(
     @CommonApiResponses
     @DeleteMapping(value = ["/delete"], produces = ["application/json"])
     fun deleteMessage(
-        request: MessageDeletingRequestDto
+        @RequestBody request: MessageDeletingRequestDto
     ): ResponseEntity<Void> {
-        deleteMessage(request)
+        messageService.deleteMessage(request)
         return ResponseEntity.ok().build()
     }
 }

@@ -1,7 +1,6 @@
 package io.github.pavelshe11.messengermicro.api.dto.request
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import io.github.pavelshe11.messengermicro.store.enums.MessageStatusType
 import io.swagger.v3.oas.annotations.media.Schema
 import java.util.*
 
@@ -12,8 +11,6 @@ data class MessageSendingRequestDto(
     val chatRoomId: UUID?,
     @Schema(description = "Содержание сообщения")
     val messageText: String,
-    @Schema(description = "Статус сообщения")
-    val messageStatusType: MessageStatusType,
     @Schema(description = "ID сообщения, на которое отвечает текущее сообщение. Может быть null")
     val parentMessageId: UUID?,
 

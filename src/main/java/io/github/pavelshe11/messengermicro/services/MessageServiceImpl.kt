@@ -6,11 +6,13 @@ import io.github.pavelshe11.messengermicro.api.exceptions.MessageNotFoundExcepti
 import io.github.pavelshe11.messengermicro.api.exceptions.ServerAnswerException
 import io.github.pavelshe11.messengermicro.normalizers.DataNormalizer
 import io.github.pavelshe11.messengermicro.store.entities.MessageEntity
+import io.github.pavelshe11.messengermicro.store.enums.MessageStatusType
 import io.github.pavelshe11.messengermicro.store.repositories.ChatRoomRepository
 import io.github.pavelshe11.messengermicro.store.repositories.ChatSendersRepository
 import io.github.pavelshe11.messengermicro.store.repositories.MessageRepository
 import io.github.pavelshe11.messengermicro.store.repositories.ParticipantRepository
 import io.github.pavelshe11.messengermicro.validators.MessageDataValidator
+import jakarta.transaction.Transactional
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.Instant
@@ -24,6 +26,7 @@ class MessageServiceImpl(
     private val chatSendersRepository: ChatSendersRepository,
     private val messageRepository: MessageRepository,
     private val participantRepository: ParticipantRepository,
+    private val messageStatusService: MessageStatusService,
 
 
     ) : MessageService {
@@ -58,7 +61,7 @@ class MessageServiceImpl(
             chatRoom = chatRoom,
             chatSenders = chatSender,
             messageText = normalizedRequest.messageText,
-            messageStatusType = normalizedRequest.messageStatusType,
+            messageStatusType = MessageStatusType.SENT,
             parentMessage = parentMessage,
             draft = false,
             sendingTime = Instant.now(),
@@ -71,6 +74,7 @@ class MessageServiceImpl(
 
     }
 
+    @Transactional
     override fun deleteMessage(request: MessageDeletingRequestDto) {
         log.info("Вызван метод удаления сообщений")
         val messagesIds = request.messagesIdsToDeleting
@@ -89,7 +93,12 @@ class MessageServiceImpl(
                 nonExistentMessages.add(messageIdToDeleting)
                 continue
             }
+
+            messageRepository.delete(message)
+
+            log.info("Удаление сообщения {}", messageIdToDeleting)
         }
+
 
         if (nonExistentMessages.isNotEmpty()) {
             log.error("Не найдены сообщения с id: {}", nonExistentMessages.joinToString(", "))
