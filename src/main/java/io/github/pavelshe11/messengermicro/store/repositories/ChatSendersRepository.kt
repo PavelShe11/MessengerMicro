@@ -32,4 +32,9 @@ interface ChatSendersRepository : JpaRepository<ChatSendersEntity, UUID?> {
         @Param("participantIds") participantIds: Set<UUID>,
         @Param("participantCount") participantCount: Int
     ): Optional<UUID>
+
+    fun findByChatRoomAndParticipant(
+        chatRoom: ChatRoomEntity,
+        participant: ParticipantEntity
+    ): MutableList<ChatSendersEntity>
 }

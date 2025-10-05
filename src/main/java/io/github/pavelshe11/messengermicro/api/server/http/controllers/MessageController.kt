@@ -5,6 +5,7 @@ import io.github.pavelshe11.messengermicro.api.dto.ErrorDto
 import io.github.pavelshe11.messengermicro.api.dto.request.MessageDeletingRequestDto
 import io.github.pavelshe11.messengermicro.api.dto.request.MessageSendingRequestDto
 import io.github.pavelshe11.messengermicro.services.MessageService
+import io.github.pavelshe11.messengermicro.utils.JwtUtil
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/messenger/v1/message")
 class MessageController(
     private val messageService: MessageService,
+    private val jwtUtil: JwtUtil,
 ) {
 
     @Operation(summary = "Метод отправки сообщения")
@@ -37,7 +39,8 @@ class MessageController(
     fun sendMessage(
         request: MessageSendingRequestDto
     ): ResponseEntity<Void> {
-        messageService.sendMessage(request)
+        val accountId = jwtUtil.claimAccountId();
+        messageService.sendMessage(request, accountId)
         return ResponseEntity.ok().build()
     }
 

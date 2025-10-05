@@ -20,7 +20,6 @@ class DataNormalizer {
     fun normalizeMessageSendingRequest(request: MessageSendingRequestDto): MessageSendingRequestDto {
         return MessageSendingRequestDto(
             chatRoomId = request.chatRoomId,
-            chatSenderId = request.chatSenderId,
             messageText = normalizeNullableString(request.messageText) ?: "",
             messageStatusType = request.messageStatusType,
             parentMessageId = request.parentMessageId,

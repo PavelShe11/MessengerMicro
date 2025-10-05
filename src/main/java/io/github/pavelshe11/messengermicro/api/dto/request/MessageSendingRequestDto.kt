@@ -10,8 +10,6 @@ import java.util.*
 data class MessageSendingRequestDto(
     @Schema(description = "ID чата, в котором отправлено сообщение")
     val chatRoomId: UUID?,
-    @Schema(description = "ID отправителя сообщения")
-    val chatSenderId: UUID?,
     @Schema(description = "Содержание сообщения")
     val messageText: String,
     @Schema(description = "Статус сообщения")

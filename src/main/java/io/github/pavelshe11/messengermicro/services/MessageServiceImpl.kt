@@ -9,6 +9,7 @@ import io.github.pavelshe11.messengermicro.store.entities.MessageEntity
 import io.github.pavelshe11.messengermicro.store.repositories.ChatRoomRepository
 import io.github.pavelshe11.messengermicro.store.repositories.ChatSendersRepository
 import io.github.pavelshe11.messengermicro.store.repositories.MessageRepository
+import io.github.pavelshe11.messengermicro.store.repositories.ParticipantRepository
 import io.github.pavelshe11.messengermicro.validators.MessageDataValidator
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -22,10 +23,11 @@ class MessageServiceImpl(
     private val chatRoomRepository: ChatRoomRepository,
     private val chatSendersRepository: ChatSendersRepository,
     private val messageRepository: MessageRepository,
+    private val participantRepository: ParticipantRepository,
 
 
     ) : MessageService {
-    override fun sendMessage(request: MessageSendingRequestDto) {
+    override fun sendMessage(request: MessageSendingRequestDto, accountId: UUID) {
         val normalizedRequest = dataNormalizer.normalizeMessageSendingRequest(request)
         dataValidator.validateMessageSendingRequest(normalizedRequest)
 
@@ -34,9 +36,15 @@ class MessageServiceImpl(
             ServerAnswerException()
         }
 
-        val chatSender = chatSendersRepository.findById(normalizedRequest.chatSenderId!!).orElseThrow {
-            log.error("Участник с id ${normalizedRequest.chatSenderId} не найден")
-            ServerAnswerException()
+        val participant = participantRepository.findByRefId(accountId) ?: run {
+            log.error("Участник с ref id $accountId не найден")
+            throw ServerAnswerException()
+        }
+
+        val chatSendersList = chatSendersRepository.findByChatRoomAndParticipant(chatRoom, participant)
+        val chatSender = chatSendersList.firstOrNull() ?: run {
+            log.error("Участник $accountId не является членом чата ${chatRoom.id}")
+            throw ServerAnswerException()
         }
 
         val parentMessage = normalizedRequest.parentMessageId?.let {

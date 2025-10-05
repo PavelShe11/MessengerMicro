@@ -4,7 +4,6 @@ import io.github.pavelshe11.messengermicro.api.dto.FieldErrorDto
 import io.github.pavelshe11.messengermicro.api.dto.request.MessageDeletingRequestDto
 import io.github.pavelshe11.messengermicro.api.dto.request.MessageSendingRequestDto
 import io.github.pavelshe11.messengermicro.store.enums.MessageStatusType
-import io.github.pavelshe11.messengermicro.validators.ChatDataValidator.Companion
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -21,8 +20,6 @@ class MessageDataValidator(
 
         validators.add { validateChatRoomId(request.chatRoomId) }
 
-        validators.add { validateChatSenderId(request.chatSenderId) }
-
         validators.add { validateMessageText(request.messageText) }
 
         validators.add { validateMessageStatusType(request.messageStatusType) }
@@ -35,6 +32,10 @@ class MessageDataValidator(
 
     private fun validateParentMessageId(parentMessageId: UUID?): FieldErrorDto? {
         val fieldName = "parentMessageId"
+
+        if (parentMessageId == null) {
+            return null
+        }
 
         val message = commonValidators.validateUUID(
             parentMessageId.toString(),
