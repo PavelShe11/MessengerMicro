@@ -4,9 +4,12 @@ import io.github.pavelshe11.messengermicro.annotations.CommonApiResponses
 import io.github.pavelshe11.messengermicro.api.dto.ErrorDto
 import io.github.pavelshe11.messengermicro.api.dto.request.MessageDeletingRequestDto
 import io.github.pavelshe11.messengermicro.api.dto.request.MessageSendingRequestDto
+import io.github.pavelshe11.messengermicro.api.dto.response.DialogPageDto
 import io.github.pavelshe11.messengermicro.services.MessageService
+import io.github.pavelshe11.messengermicro.store.enums.CursorDestinationType
 import io.github.pavelshe11.messengermicro.utils.JwtUtil
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -60,5 +63,24 @@ class MessageController(
     ): ResponseEntity<Void> {
         messageService.deleteMessage(request)
         return ResponseEntity.ok().build()
+    }
+
+    @Operation(summary = "Метод получения списка диалогов с последним сообщением по ID пользователя")
+    @ApiResponse(responseCode = "200", description = "Диалоги успешно получены")
+    @CommonApiResponses
+    @GetMapping(value = ["/dialogs"], produces = ["application/json"])
+    fun getDialogs(
+        @Parameter(description = "Фильтр по имени пользователя или чату", example = "Альберт")
+        @RequestParam(required = false) keyword: String? = null,
+        @Parameter(description = "Курсор для постраничного вывода (Base64 строка)", example = "eyJpZCI6IjEyMyJ9")
+        @RequestParam(required = false) cursor: String? = null,
+        @Parameter(description = "Выбор элементов до или после курсора (before/after)")
+        @RequestParam(required = false) cursorDestination: CursorDestinationType? = null,
+        @Parameter(description = "Количество элементов на страницу")
+        @RequestParam(name = "size", defaultValue = "10") pageSize: Int = 10
+    ): DialogPageDto {
+        val accountId = jwtUtil.claimAccountId()
+        val dialogs = messageService.getDialogsByKeyword(accountId, keyword, cursor, pageSize, cursorDestination)
+        return dialogs
     }
 }
