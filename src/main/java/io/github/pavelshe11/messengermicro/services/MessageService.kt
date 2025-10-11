@@ -9,5 +9,4 @@ import java.util.UUID
 interface MessageService {
     fun sendMessage(request: MessageSendingRequestDto, accountId: UUID)
     fun deleteMessage(request: MessageDeletingRequestDto)
-    fun getDialogsByKeyword(accountId: UUID?, keyword: String?, cursor: String?, pageSize: Int, cursorDestination: CursorDestinationType?): DialogPageDto
 }

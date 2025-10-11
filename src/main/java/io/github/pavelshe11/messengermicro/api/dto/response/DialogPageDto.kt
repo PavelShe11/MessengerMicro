@@ -1,6 +1,6 @@
 package io.github.pavelshe11.messengermicro.api.dto.response
 
-import io.github.pavelshe11.messengermicro.store.entities.DialogDto
+import io.github.pavelshe11.messengermicro.api.dto.DialogDto
 import io.github.pavelshe11.messengermicro.store.enums.CursorDestinationType
 import java.util.*
 
@@ -12,23 +12,23 @@ data class DialogPageDto(
     val hasPreviousPage: Boolean,
     val size: Int,
 
-) {
+    ) {
     companion object {
-        fun ofByTitleAndLastMessage(
+        fun ofByLastMessage(
             content: List<DialogDto>,
             requestedSize: Int,
             cursorDestinationType: CursorDestinationType,
-            cursorName: String?,
+            cursorTime: Long?,
             cursorId: UUID?
         ): DialogPageDto {
             val page = PageDto.of(
                 content,
                 requestedSize,
                 cursorCreator = { item ->
-                    PageDto.encodeCursor(item.title + "|" + item.chatRoomId)
+                    PageDto.encodeCursor("${item.lastMessage?.sendingTime?.toEpochMilli()}|${item.chatRoomId}")
                 },
                 cursorDestinationType = cursorDestinationType,
-                cursorName = cursorName,
+                cursorName = cursorTime?.toString(),
                 cursorId = cursorId
             )
             return DialogPageDto(

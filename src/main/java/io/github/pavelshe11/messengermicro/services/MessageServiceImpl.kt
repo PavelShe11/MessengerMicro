@@ -6,6 +6,7 @@ import io.github.pavelshe11.messengermicro.api.dto.response.DialogPageDto
 import io.github.pavelshe11.messengermicro.api.exceptions.MessageNotFoundException
 import io.github.pavelshe11.messengermicro.api.exceptions.ServerAnswerException
 import io.github.pavelshe11.messengermicro.normalizers.DataNormalizer
+import io.github.pavelshe11.messengermicro.api.dto.DialogDto
 import io.github.pavelshe11.messengermicro.store.entities.MessageEntity
 import io.github.pavelshe11.messengermicro.store.enums.CursorDestinationType
 import io.github.pavelshe11.messengermicro.store.enums.MessageStatusType
@@ -19,6 +20,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.util.*
+import java.util.stream.Collectors
 
 @Service
 class MessageServiceImpl(
@@ -108,17 +110,6 @@ class MessageServiceImpl(
         }
 
         // TODO: отправить в Kafka / WebSocket
-    }
-
-
-    override fun getDialogsByKeyword(
-        accountId: UUID?,
-        keyword: String?,
-        cursor: String?,
-        pageSize: Int,
-        cursorDestination: CursorDestinationType?
-    ): DialogPageDto {
-        TODO("Not yet implemented")
     }
 
     companion object {
